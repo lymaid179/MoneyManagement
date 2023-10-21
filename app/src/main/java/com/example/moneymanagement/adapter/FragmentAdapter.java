@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.moneymanagement.fragment.FragmentCategory;
 import com.example.moneymanagement.fragment.FragmentHome;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
@@ -20,6 +21,8 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 return new FragmentHome();
+            case 1:
+                return new FragmentCategory();
         }
         return null;
     }
