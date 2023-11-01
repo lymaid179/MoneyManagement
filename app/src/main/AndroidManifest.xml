@@ -23,6 +23,10 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".CategoryFormActivity" />
+        <activity android:name=".TransactionFormActivity"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".TransactionCategoryActivity"
+            android:theme="@style/Theme.AppCompat.Translucent"></activity>/>
     </application>
 
 </manifest>
