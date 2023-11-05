@@ -26,7 +26,6 @@ public class TransactionDateItemAdapter extends ArrayAdapter {
     List<Transaction> transactionListByDate = new ArrayList<>();
     List<Timestamp> timestampList;
     TransactionItemAdapter adapter;
-    int currentIndex = 0;
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy");
     public TransactionDateItemAdapter(@NonNull Context context, @NonNull List<Timestamp> timestampList, List<Transaction> transactionList) {
         super(context, R.layout.item_transaction_date, timestampList);
@@ -71,21 +70,13 @@ public class TransactionDateItemAdapter extends ArrayAdapter {
 
     private void getTransactionListByDate(Timestamp timestamp) {
         transactionListByDate.clear();
-        System.out.println("----");
         for (int i = 0; i<transactionList.size(); i++){
             Transaction transaction = transactionList.get(i);
-            System.out.println(transaction.getCategory().getName());
             Timestamp transactionDate = transaction.getDate();
             if (dateFormat.format(timestamp.toDate()).equals(dateFormat.format(transactionDate.toDate()))) {
                 transactionListByDate.add(transaction);
-//                currentIndex++;
-            } else {
-//                adapter.notifyDataSetChanged();
-//                return;
             }
         }
         adapter.notifyDataSetChanged();
-
-        return;
     }
 }

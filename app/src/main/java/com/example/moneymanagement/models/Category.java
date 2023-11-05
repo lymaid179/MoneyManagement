@@ -6,7 +6,6 @@ public class Category implements Serializable {
     private int id;
     private String name;
     private int kind; //0: expense, 1: income
-//    private int imageId;
     private String imageColor;
     private CategoryImage categoryImage;
 
@@ -15,13 +14,6 @@ public class Category implements Serializable {
 
     public Category(int id, String name, int kind, String imageColor, CategoryImage categoryImage) {
         this.id = id;
-        this.name = name;
-        this.kind = kind;
-        this.imageColor = imageColor;
-        this.categoryImage = categoryImage;
-    }
-
-    public Category(String name, int kind, String imageColor, CategoryImage categoryImage) {
         this.name = name;
         this.kind = kind;
         this.imageColor = imageColor;

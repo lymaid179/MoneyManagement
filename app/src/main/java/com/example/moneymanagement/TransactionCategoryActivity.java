@@ -19,12 +19,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class TransactionCategoryActivity extends AppCompatActivity implements CategoryOnItemSelected {
     View backgroundView;
@@ -32,6 +39,7 @@ public class TransactionCategoryActivity extends AppCompatActivity implements Ca
     ListView listView;
     CategoryItemAdapter adapter;
     List<Category> categoryList = new ArrayList<>();
+    List<Category> adapterCategoryList = new ArrayList<>();
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,10 +59,10 @@ public class TransactionCategoryActivity extends AppCompatActivity implements Ca
         });
 
         //ListView
-        adapter = new CategoryItemAdapter(this, categoryList, this);
+        adapter = new CategoryItemAdapter(this, adapterCategoryList, this);
         listView.setAdapter(adapter);
 
-        getCategoryByKind(0);
+        getAllCategory();
 
         //TabLayout
         tabLayout.addTab(tabLayout.newTab().setText("Expense"));
@@ -78,36 +86,48 @@ public class TransactionCategoryActivity extends AppCompatActivity implements Ca
         });
     }
 
-    private  void getCategoryByKind(int kind) {
+    private void getAllCategory(){
         categoryList.clear();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("user")
+        Query categoryListRef = db.collection("user")
                 .document(""+user.getEmail())
                 .collection("category")
-                .whereEqualTo("kind", kind)
-                .orderBy("id")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                System.out.println(document.getData()+"");
-                                Category category = document.toObject(Category.class);
+                .orderBy("id");
 
-                                categoryList.add(category);
-                            }
-                            adapter.notifyDataSetChanged();
+        categoryListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        System.out.println(document.getData()+"");
+                        Category category = document.toObject(Category.class);
 
-                        }
+                        categoryList.add(category);
                     }
-                });
+                    getCategoryByKind(tabLayout.getSelectedTabPosition());
+                }
+            }
+        });
+
+
+    }
+
+    private void getCategoryByKind(int kind) {
+        adapterCategoryList.clear();
+        adapterCategoryList.addAll(categoryList.stream().filter(new Predicate<Category>() {
+            @Override
+            public boolean test(Category category) {
+                return category.getKind() == kind;
+            }
+        }).collect(Collectors.toList()));
+        adapter.notifyDataSetChanged();
+
     }
 
     @Override
     public void onItemClick(View v, int position) {
-        Category category = categoryList.get(position);
+        Category category = adapterCategoryList.get(position);
 
         setResult(Activity.RESULT_OK, getIntent().putExtra("category", category));
         finish();

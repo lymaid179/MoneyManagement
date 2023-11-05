@@ -69,21 +69,26 @@ public class TransactionFormActivity extends AppCompatActivity {
 
 
         //Config add and update transaction
+        final Date[] date = {new Date()};
         Intent intent = getIntent();
-        Transaction selectedTransaction = (Transaction) intent.getSerializableExtra("transaction");
+        Transaction selectedTransaction = (Transaction) intent.getParcelableExtra("transaction");
         selectedCategory = (Category) intent.getSerializableExtra("category");
 
         if (selectedTransaction == null) {
             updateButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
             addButton.setVisibility(View.VISIBLE);
-            configCategoryView(selectedCategory);
         } else {
             updateButton.setVisibility(View.VISIBLE);
             deleteButton.setVisibility(View.VISIBLE);
             addButton.setVisibility(View.GONE);
-            configCategoryView(selectedTransaction.getCategory());
+
+            date[0] = selectedTransaction.getDate().toDate();
+            amountEditText.setText(""+selectedTransaction.getAmount());
+            noteEditText.setText(selectedTransaction.getNote());
         }
+
+        configCategoryView(selectedCategory);
 
         //Default focus to amountEditText
         amountEditText.requestFocus();
@@ -108,14 +113,7 @@ public class TransactionFormActivity extends AppCompatActivity {
         });
 
         //DatePicker
-        final Date[] date = {new Date()};
-
         dateText.setText(""+dateFormat.format(date[0]));
-//
-//        System.out.println(new Timestamp(date[0]));
-//        System.out.println(timestamp.toDate());
-//        System.out.println(dateFormat.format(timestamp.toDate()));
-
         dateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,6 +143,7 @@ public class TransactionFormActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
+                    int id = getIntent().getIntExtra("lastIndex", -1) +1;
                     long amount = Long.parseLong(amountEditText.getText().toString());
                     String note = noteEditText.getText().toString();
                     Timestamp timestamp = new Timestamp(date[0]);
@@ -154,12 +153,44 @@ public class TransactionFormActivity extends AppCompatActivity {
                     } else if (amount > Math.pow(10,12)) {
                         Toast.makeText(TransactionFormActivity.this, "Amount is too big", Toast.LENGTH_SHORT).show();
                     } else {
-                        Transaction transaction = new Transaction(amount, note, timestamp, selectedCategory);
-                        addTransaction(transaction);
+                        Transaction transaction = new Transaction(id, amount, note, timestamp, selectedCategory);
+                        saveTransaction(transaction);
                     }
                 } catch (NumberFormatException e) {
                     Toast.makeText(TransactionFormActivity.this, "Missing information", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    long amount = Long.parseLong(amountEditText.getText().toString());
+                    String note = noteEditText.getText().toString();
+                    Timestamp timestamp = new Timestamp(date[0]);
+
+                    if (amount == 0) {
+                        Toast.makeText(TransactionFormActivity.this, "Amount has to greater than 0", Toast.LENGTH_SHORT).show();
+                    } else if (amount > Math.pow(10,12)) {
+                        Toast.makeText(TransactionFormActivity.this, "Amount is too big", Toast.LENGTH_SHORT).show();
+                    } else {
+                        selectedTransaction.setAmount(amount);
+                        selectedTransaction.setDate(timestamp);
+                        selectedTransaction.setNote(note);
+                        selectedTransaction.setCategory(selectedCategory);
+                        saveTransaction(selectedTransaction);
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(TransactionFormActivity.this, "Missing information", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteTransaction(selectedTransaction);
             }
         });
 
@@ -175,17 +206,27 @@ public class TransactionFormActivity extends AppCompatActivity {
         }
     }
 
-    private void addTransaction(Transaction transaction){
-        List<Category> categoryList = new ArrayList<>();
+    private void saveTransaction(Transaction transaction){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         db.collection("user")
                 .document(""+user.getEmail())
                 .collection("transaction")
-                .document()
+                .document(""+transaction.getId())
                 .set(transaction);
 
+        finish();
+    }
+
+    private void deleteTransaction(Transaction transaction) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        db.collection("user")
+                .document(""+user.getEmail())
+                .collection("transaction")
+                .document(""+transaction.getId())
+                .delete();
         finish();
     }
 

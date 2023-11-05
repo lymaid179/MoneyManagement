@@ -23,6 +23,7 @@ import com.example.moneymanagement.adapter.CategoryImageItemAdapter;
 import com.example.moneymanagement.models.Category;
 import com.example.moneymanagement.models.CategoryImage;
 import com.example.moneymanagement.support.CategoryImageOnItemSelected;
+import com.example.moneymanagement.support.Constant;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -129,6 +130,7 @@ public class CategoryFormActivity extends AppCompatActivity implements CategoryI
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int id = getIntent().getIntExtra("lastIndex", -1) + 1;
                 String name = categoryNameEditText.getText().toString();
                 int kind = 0;
                 switch (radioGroup.getCheckedRadioButtonId()) {
@@ -148,8 +150,8 @@ public class CategoryFormActivity extends AppCompatActivity implements CategoryI
                     return;
                 }
                 //Firebase add category
-                Category newCategory = new Category(name, kind, colorString, categoryImage);
-                addCategory(newCategory);
+                Category newCategory = new Category(id, name, kind, colorString, categoryImage);
+                saveCategory(newCategory);
             }
         });
 
@@ -182,7 +184,7 @@ public class CategoryFormActivity extends AppCompatActivity implements CategoryI
                 selectedCategory.setCategoryImage(categoryImage);
                 selectedCategory.setImageColor(colorString);
 
-                updateCategory(selectedCategory);
+                saveCategory(selectedCategory);
             }
         });
 
@@ -196,49 +198,17 @@ public class CategoryFormActivity extends AppCompatActivity implements CategoryI
 
     }
 
-    private void addCategory(Category category){
-        List<Category> categoryList = new ArrayList<>();
+    private void saveCategory(Category category){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("user")
-            .document(""+user.getEmail())
-            .collection("category")
-            .orderBy("id")
-            .get()
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Category category = document.toObject(Category.class);
-
-                            categoryList.add(category);
-                        }
-                        int id = categoryList.get(categoryList.size()-1).getId() + 1;
-                        category.setId(id);
-
-                        db.collection("user")
-                                .document(""+user.getEmail())
-                                .collection("category")
-                                .document(""+id)
-                                .set(category);
-
-                        finish();
-                    }
-                }
-            });
-    }
-
-    private void updateCategory(Category category){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         db.collection("user")
                 .document(""+user.getEmail())
                 .collection("category")
                 .document(""+category.getId())
                 .set(category);
+
         finish();
+
     }
 
     private void deleteCategory(Category category) {
@@ -253,32 +223,21 @@ public class CategoryFormActivity extends AppCompatActivity implements CategoryI
     }
 
     private void getAllCategoryImage() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("categoryImage")
-                .orderBy("id")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                CategoryImage categoryImage = document.toObject(CategoryImage.class);
+        for (int i = 0; i< Constant.imageName.length; i++){
+            CategoryImage categoryImage = new CategoryImage(i, Constant.imageName[i]);
+            categoryImageList.add(categoryImage);
+        }
 
-                                categoryImageList.add(categoryImage);
-                            }
+        if (selectedCategory!=null) {
+            int selectedImage = selectedCategory.getCategoryImage().getId();
+            categoryImageList.get(selectedImage).setSelected(true);
+            adapter.setSelected(selectedImage);
+        } else {
+            //Set default select 0
+            categoryImageList.get(0).setSelected(true);
+        }
+        adapter.notifyDataSetChanged();
 
-                            if (selectedCategory!=null) {
-                                int selectedImage = selectedCategory.getCategoryImage().getId();
-                                categoryImageList.get(selectedImage).setSelected(true);
-                                adapter.setSelected(selectedImage);
-                            } else {
-                                //Set default select 0
-                                categoryImageList.get(0).setSelected(true);
-                            }
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                });
     }
 
     private void openColorPicker(){

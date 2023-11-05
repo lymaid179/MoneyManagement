@@ -2,6 +2,7 @@ package com.example.moneymanagement.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -15,18 +16,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.moneymanagement.R;
+import com.example.moneymanagement.TransactionFormActivity;
 import com.example.moneymanagement.models.Transaction;
+import com.example.moneymanagement.support.TransactionOnItemSelected;
 
 import java.util.List;
 
 public class TransactionItemAdapter extends ArrayAdapter {
     Context context;
     List<Transaction> transactionListByDate;
+    TransactionOnItemSelected transactionItemListener;
     public TransactionItemAdapter(@NonNull Context context, @NonNull List<Transaction> transactionListByDate) {
         super(context, R.layout.item_transaction_date, transactionListByDate);
 
         this.context = context;
         this.transactionListByDate = transactionListByDate;
+    }
+
+    public void setTransactionItemListener(TransactionOnItemSelected transactionItemListener) {
+        this.transactionItemListener = transactionItemListener;
     }
 
     @NonNull
@@ -68,6 +76,11 @@ public class TransactionItemAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 System.out.println(transaction.getCategory().getName());
+                Intent intent = new Intent(getContext(), TransactionFormActivity.class);
+
+                intent.putExtra("transaction", transaction);
+                intent.putExtra("category", transaction.getCategory());
+                getContext().startActivity(intent);
             }
         });
         return v;

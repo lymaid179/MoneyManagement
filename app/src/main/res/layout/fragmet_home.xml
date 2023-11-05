@@ -27,7 +27,7 @@
             app:srcCompat="@drawable/bg_header_home" />
 
         <TextView
-            android:id="@+id/totalBalanceTextView"
+            android:id="@+id/welcomeTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -51,7 +51,7 @@
             android:layout_marginStart="210dp"
             android:layout_marginTop="28dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/totalBalanceTextView"
+            app:layout_constraintTop_toBottomOf="@+id/welcomeTextView"
             app:srcCompat="@drawable/ic_income" />
 
         <LinearLayout
@@ -128,7 +128,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="28dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/totalBalanceTextView"
+            app:layout_constraintTop_toBottomOf="@+id/welcomeTextView"
             app:srcCompat="@drawable/ic_expense" />
 
         <ImageButton
@@ -138,9 +138,9 @@
             android:layout_marginEnd="20dp"
             android:background="@null"
             android:scaleType="fitXY"
-            app:layout_constraintBottom_toBottomOf="@+id/totalBalanceTextView"
+            app:layout_constraintBottom_toBottomOf="@+id/welcomeTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/totalBalanceTextView"
+            app:layout_constraintTop_toTopOf="@+id/welcomeTextView"
             app:srcCompat="@drawable/ic_logout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
