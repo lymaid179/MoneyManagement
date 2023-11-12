@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         //View Pager
-        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(), 2);
+        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
                     case 1:
                         bottomNavigationView.getMenu().findItem(R.id.mCate).setChecked(true);
                         break;
-//                    case 2:
-//                        bottomNavigationView.getMenu().findItem(R.id.mChart).setChecked(true);
-//                        break;
+                    case 2:
+                        bottomNavigationView.getMenu().findItem(R.id.mChart).setChecked(true);
+                        break;
                 }
             }
 
@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.mCate:
                         viewPager.setCurrentItem(1);
                         break;
-//                    case R.id.mChart:
-//                        viewPager.setCurrentItem(2);
-//                        break;
+                    case R.id.mChart:
+                        viewPager.setCurrentItem(2);
+                        break;
 
                 }
                 return false;

@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.moneymanagement.fragment.FragmentCategory;
+import com.example.moneymanagement.fragment.FragmentChart;
 import com.example.moneymanagement.fragment.FragmentHome;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
@@ -23,6 +24,8 @@ public class FragmentAdapter extends FragmentPagerAdapter {
                 return new FragmentHome();
             case 1:
                 return new FragmentCategory();
+            case 2:
+                return new FragmentChart();
         }
         return null;
     }
